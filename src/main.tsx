@@ -1,13 +1,17 @@
+import { MantineProvider } from "@mantine/core";
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { Provider } from "react-redux";
 import App from "./App.tsx";
 import "./index.css";
-import { MantineProvider } from "@mantine/core";
+import { store } from "./store/index.ts";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <MantineProvider>
-      <App />
-    </MantineProvider>
+    <Provider store={store}>
+      <MantineProvider>
+        <App />
+      </MantineProvider>
+    </Provider>
   </React.StrictMode>
 );

@@ -10,27 +10,20 @@ import {
   Title,
   createStyles,
 } from "@mantine/core";
-import axios from "axios";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { ApplicationState } from "./store";
+import { fetchImagesRequest } from "./store/images/actions";
+import { Image as ImageType } from "./store/images/types";
 
 function App() {
-  const [imageList, setImageList] = useState<any[]>([]);
-  const [selectedImage, setSelectedImage] = useState<any>(null); // imageList[0]
+  const dispatch = useDispatch();
+  const imageList = useSelector((state: ApplicationState) => state.images.data);
+  const [selectedImage, setSelectedImage] = useState<ImageType | null>(null); // imageList[0]
   const { classes } = useStyles();
 
-  const fetchImages = async () => {
-    // fetch 10 images with some image api using axios.get
-    const images = await axios.get("https://picsum.photos/v2/list?limit=10");
-
-    setImageList(images.data);
-    // set the first image as the selected image
-    if (selectedImage === null) {
-      setSelectedImage(images.data[0]);
-    }
-  };
-
   useEffect(() => {
-    fetchImages();
+    dispatch(fetchImagesRequest());
   }, []);
 
   return (
@@ -39,11 +32,11 @@ function App() {
       navbar={
         <Navbar width={{ base: 300 }} p="xs">
           <Stack>
-            {imageList.map((_, index) => (
-              <Box>
+            {imageList.map((image, index) => (
+              <Box key={image.id}>
                 <Text
-                  color={Number(selectedImage.id) === index ? "grape" : "dark"}
-                  weight={Number(selectedImage.id) === index ? 700 : 400}
+                  color={Number(selectedImage?.id) === index ? "grape" : "dark"}
+                  weight={Number(selectedImage?.id) === index ? 700 : 400}
                   onClick={() => setSelectedImage(imageList[index])}
                   style={{ cursor: "pointer" }}
                 >
@@ -62,14 +55,16 @@ function App() {
     >
       <Box h={"100%"}>
         <Center h={"100%"} className={classes.imageContainer}>
-          <Image
-            src={selectedImage?.download_url}
-            width={selectedImage?.width * 0.2}
-            height={selectedImage?.height * 0.2}
-            alt={selectedImage?.author}
-            classNames={{ image: classes.imageItem }}
-            caption={`Image by ${selectedImage?.author}`}
-          />
+          {selectedImage && (
+            <Image
+              src={selectedImage?.download_url}
+              width={selectedImage?.width * 0.2}
+              height={selectedImage?.height * 0.2}
+              alt={selectedImage?.author}
+              classNames={{ image: classes.imageItem }}
+              caption={`Image by ${selectedImage?.author}`}
+            />
+          )}
         </Center>
       </Box>
     </AppShell>
